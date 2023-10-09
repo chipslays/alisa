@@ -5,6 +5,8 @@ namespace Alisa;
 class Configuration
 {
     protected $options = [
+        'skill_id' => null,
+        'token' => null,
         'event' => null,
     ];
 
