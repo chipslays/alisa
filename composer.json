@@ -1,0 +1,36 @@
+{
+  "name": "alisa/alisa",
+  "description": "Разрабатывайте навыки для Алисы с любовью <3",
+  "keywords": [
+    "yandex",
+    "dialogs",
+    "alisa",
+    "api",
+    "library",
+    "framework"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": "^8.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^2.20",
+    "symfony/var-dumper": "^6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alisa\\": "src/"
+    },
+    "files": [
+      "src/Support/Helpers.php"
+    ]
+  },
+  "scripts": {
+    "test": "./vendor/bin/pest"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
