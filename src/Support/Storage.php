@@ -23,7 +23,7 @@ class Storage
 
     public function set(string $key, mixed $value): self
     {
-        file_put_contents($this->path . '/' . $key, json_encode($value));
+        file_put_contents($this->path . '/' . $key, json_encode($value), LOCK_EX);
 
         return $this;
     }
