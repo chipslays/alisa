@@ -29,6 +29,8 @@ class Skill
 
     protected array $onAfterRunHandlers = [];
 
+    protected Closure|array|string|null $exceptionHandler = null;
+
     public function __construct(array $options = [])
     {
         $this->container = Container::getInstance();
@@ -103,7 +105,14 @@ class Skill
         return $this;
     }
 
-    public function run(?Closure $exceptionHandler = null): void
+    public function onException(Closure|array|string|null $callback): self
+    {
+        $this->exceptionHandler = $callback;
+
+        return $this;
+    }
+
+    public function run(): void
     {
         try {
             foreach (array_sort_by_priority($this->onBeforeRunHandlers) as $handler) {
@@ -120,19 +129,19 @@ class Skill
                 call_user_func($handler, $matchedRoute);
             }
         } catch (Throwable $th) {
-            if ($exceptionHandler) {
-                $this->fire($exceptionHandler, [$th, $this->request]);
+            if ($this->exceptionHandler) {
+                $this->fire($this->exceptionHandler, [$th, $this->request]);
             } else {
                 throw $th;
             }
         }
     }
 
-    public function runAsCloudFunction(?Closure $exceptionHandler = null): string
+    public function runAsCloudFunction(): string
     {
         ob_start();
 
-        $this->run($exceptionHandler);
+        $this->run();
 
         $response = ob_get_contents();
 
