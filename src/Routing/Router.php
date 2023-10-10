@@ -56,7 +56,7 @@ trait Router
         return $this;
     }
 
-    public function onFallback(Closure|array|string $handler): self
+    public function onFallback(Closure|array|string|null $handler): self
     {
         $this->fallbackHandler = $handler;
 
