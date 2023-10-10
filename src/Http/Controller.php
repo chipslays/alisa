@@ -26,32 +26,10 @@ class Controller
 
     protected function bootstrap(): void
     {
-        $this->container = Container::getInstance();
         $this->alisa = new Alisa;
-    }
-
-    public function __get(mixed $name): mixed
-    {
-        switch ($name) {
-            case 'request':
-                if (!isset($this->request)) {
-                    $this->request = $this->container->make(Request::class);
-                }
-                break;
-
-            case 'skill':
-                if (!isset($this->skill)) {
-                    $this->skill = $this->container->make(Skill::class);
-                }
-                break;
-
-            case 'config':
-                if (!isset($this->config)) {
-                    $this->config = $this->container->make(Configuration::class);
-                }
-                break;
-        }
-
-        return $this->{$name};
+        $this->container = Container::getInstance();
+        $this->request = $this->container->make(Request::class);
+        $this->skill = $this->container->make(Skill::class);
+        $this->config = $this->container->make(Configuration::class);
     }
 }
