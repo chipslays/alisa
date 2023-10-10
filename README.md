@@ -5,17 +5,13 @@ Alisa — это библиотека для разработки навыков
 ## Установка
 
 ```bash
-composer require alisa/alisa
+composer require alisa/alisa:@beta
 ```
 
 ## Документация
 
-...
+Сейчас библиотека обкатывается, документация и примеры будут после обкатки.
 
-## Contributing
+## Лицензия
 
-Contributions to the Alisa project are welcome! If you find any issues or have suggestions for improvements, please create a new issue or submit a pull request. Make sure to follow the project's coding style and guidelines.
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more information.
+MIT
