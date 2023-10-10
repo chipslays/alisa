@@ -37,8 +37,7 @@ class Skill
 
         // https://yandex.ru/dev/dialogs/alice/doc/health-check.html
         if ($request->isPing()) {
-            $alisa = new Alisa($request);
-            exit($alisa->reply('pong', end: true));
+            exit((new Alisa)->reply('pong', end: true));
         }
 
         $this->request = $request;

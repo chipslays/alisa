@@ -190,7 +190,7 @@ trait Router
         }
 
         if (!$this->matchedRoute && $this->fallbackHandler !== null) {
-            $this->fire($this->fallbackHandler, [new Alisa($this->request)]);
+            $this->fire($this->fallbackHandler, [new Alisa]);
         }
 
         return $this->matchedRoute;
@@ -231,7 +231,7 @@ trait Router
         // добавляем в конец обработчик
         $route['middleware'][] = function () use ($route, $parameters) {
             $this->matchedRoute = $route;
-            $this->fire($route, [new Alisa($this->request), ...$parameters]);
+            $this->fire($route, [new Alisa, ...$parameters]);
         };
 
         array_reduce(

@@ -2,60 +2,26 @@
 
 namespace Alisa\Http;
 
+use Alisa\Support\Container;
 use Alisa\Yandex\Types\AudioPlayer\AudioPlayer;
 use Alisa\Yandex\Types\Button;
 use Alisa\Yandex\Types\Card\AbstractCard;
 
 class Response
 {
+    protected Request $request;
+
     protected array $data = [
         'response' => [
             'text' => null,
-            'tts' => null,
-            // 'card' => [
-            //     'type' => '...',
-            // ],
-            // 'buttons' => [
-            //     [
-            //         'title' => 'Надпись на кнопке',
-            //         'payload' => [],
-            //         'url' => 'https://example.com/',
-            //         'hide' => true,
-            //     ],
-            // ],
             'end_session' => false,
         ],
-        // 'session_state' => [
-        //     'value' => 10,
-        // ],
-        // 'user_state_update' => [
-        //     'value' => 42,
-        // ],
-        // 'application_state' => [
-        //     'value' => 37,
-        // ],
-        // 'analytics' => [
-        //     'events' => [
-        //         [
-        //             'name' => 'custom event',
-        //         ],
-        //         [
-        //             'name' => 'another custom event',
-        //             'value' => [
-        //                 'field' => 'some value',
-        //                 'second field' => [
-        //                     'third field' => 'custom value',
-        //                 ],
-        //             ],
-        //         ],
-        //     ],
-        // ],
         'version' => '1.0',
     ];
 
-    public function __construct(protected Request $request)
+    public function __construct()
     {
-        //
+        $this->request = Container::getInstance()->make(Request::class);
     }
 
     public function text(string $text): static

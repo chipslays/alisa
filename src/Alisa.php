@@ -4,15 +4,18 @@ namespace Alisa;
 
 use Alisa\Http\Request;
 use Alisa\Http\Response;
+use Alisa\Support\Container;
 use Alisa\Support\Markup;
 use Alisa\Yandex\Types\AudioPlayer\AudioPlayer;
 use Alisa\Yandex\Types\Card\AbstractCard;
 
 class Alisa
 {
-    public function __construct(protected Request $request)
+    protected Request $request;
+
+    public function __construct()
     {
-        //
+        $this->request = Container::getInstance()->make(Request::class);
     }
 
     public function getRequest(): Request
@@ -45,7 +48,7 @@ class Alisa
             'tts' => $tts ?? $text,
         ]);
 
-        echo (new Response($this->request))
+        echo (new Response)
             ->text($processed['text'])
             ->tts($processed['tts'])
             ->buttons($buttons)
@@ -63,7 +66,7 @@ class Alisa
             'tts' => $tts ?? $text,
         ]);
 
-        $response = new Response($this->request);
+        $response = new Response;
 
         switch ($type::class) {
             case AbstractCard::class:
