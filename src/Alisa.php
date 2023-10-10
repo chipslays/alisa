@@ -4,6 +4,7 @@ namespace Alisa;
 
 use Alisa\Http\Request;
 use Alisa\Http\Response;
+use Alisa\Support\Storage;
 use Alisa\Support\Container;
 use Alisa\Support\Markup;
 use Alisa\Yandex\Types\AudioPlayer\AudioPlayer;
@@ -13,26 +14,59 @@ class Alisa
 {
     protected Request $request;
 
+    protected Storage $storage;
+
+    protected Configuration $config;
+
+    protected Container $container;
+
     public function __construct()
     {
-        $this->request = Container::getInstance()->make(Request::class);
+        $this->container = Container::getInstance();
     }
 
-    public function getRequest(): Request
+    public function container(): Container
     {
+        return $this->container;
+    }
+
+    public function request(): Request
+    {
+        if (!isset($this->request)) {
+            $this->request = $this->container->make(Request::class);
+        }
+
         return $this->request;
+    }
+
+    public function config(): Configuration
+    {
+        if (!isset($this->config)) {
+            $this->config = $this->container->make(Configuration::class);
+        }
+
+        return $this->config;
+    }
+
+    public function storage(): Storage
+    {
+        if (!isset($this->request)) {
+            $this->storage = $this->container->make(Storage::class);
+        }
+
+        return $this->storage;
     }
 
     public function enter(string $sceneName): self
     {
-        $this->request->session()->set('scene', $sceneName);
+        $this->request()->session()->set('scene', $sceneName);
 
         return $this;
     }
 
     public function leave(): self
     {
-        $this->request->session()->remove('scene');
+        $this->request()->session()->remove('scene');
 
         return $this;
     }

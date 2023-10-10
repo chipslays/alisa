@@ -6,6 +6,7 @@ use Alisa\Http\Request;
 use Alisa\Routing\Router;
 use Alisa\Scenes\Scene;
 use Alisa\Scenes\Stage;
+use Alisa\Support\Storage;
 use Alisa\Support\Container;
 use \Closure;
 use \Throwable;
@@ -20,12 +21,18 @@ class Skill
 
     protected Request $request;
 
+    protected Storage $storage;
+
+    protected Container $container;
+
     protected array $onBeforeRunHandlers = [];
 
     protected array $onAfterRunHandlers = [];
 
     public function __construct(array $options = [])
     {
+        $this->container = Container::getInstance();
+
         $this->config = new Configuration($options);
 
         $this->bootstrap();
@@ -33,19 +40,22 @@ class Skill
 
     protected function bootstrap(): void
     {
-        $request = new Request($this->config->get('event'));
+        $request = new Request($this->config()->get('event'));
 
         // https://yandex.ru/dev/dialogs/alice/doc/health-check.html
         if ($request->isPing()) {
             exit((new Alisa)->reply('pong', end: true));
         }
 
-        $this->request = $request;
+        $this->container->singleton(Configuration::class, fn () => $this->config);
+        $this->container->singleton(Request::class, fn () => $this->request);
+        $this->container->singleton(Storage::class, fn () => $this->storage);
+        $this->container->singleton(__CLASS__, fn () => $this);
 
-        $container = Container::getInstance();
-        $container->singleton(Request::class, fn () => $request);
-        $container->singleton(Configuration::class, fn () => $this->config);
-        $container->singleton(__CLASS__, fn () => $this);
+        $this->request = $request;
+        $this->storage = new Storage;
+
+        Asset::override($this->config()->get('assets', []));
     }
 
     public function onBeforeRun(Closure $handler, int $priority = 500): self
@@ -62,14 +72,24 @@ class Skill
         return $this;
     }
 
-    public function request(string $key, mixed $default = null): mixed
+    public function container(): Container
     {
-        return $this->request->get($key, $default);
+        return $this->container;
+    }
+
+    public function request(): Request
+    {
+        return $this->request;
     }
 
     public function config(): Configuration
     {
         return $this->config;
+    }
+
+    public function storage(): Storage
+    {
+        return $this->storage;
     }
 
     public function scene(string $name, Closure $callback): self
@@ -90,7 +110,7 @@ class Skill
                 call_user_func($handler);
             }
 
-            if ($scene = Stage::get($this->request->session()->get('scene'))) {
+            if ($scene = Stage::get($this->request()->session()->get('scene'))) {
                 $matchedRoute = $scene->dispatch();
             } else {
                 $matchedRoute = $this->dispatch();
