@@ -4,8 +4,8 @@ namespace Alisa\Routing;
 
 use Alisa\Alisa;
 use Alisa\Http\Request;
+use Alisa\Exceptions\RouterException;
 use \Closure;
-use \Exception;
 
 use function Alisa\Support\Helpers\array_sort_by_priority;
 
@@ -242,7 +242,7 @@ trait Router
                         if (isset($this->middleware[$middleware])) {
                             $middleware = $this->middleware[$middleware];
                         } else {
-                            throw new Exception("Middleware not exists: {$middleware}");
+                            throw new RouterException("Middleware not exists: {$middleware}");
                         }
                     }
 

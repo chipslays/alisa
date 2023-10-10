@@ -2,9 +2,9 @@
 
 namespace Alisa\Support;
 
+use Alisa\Exceptions\ContainerException;
 use \Closure;
 use \ReflectionClass;
-use \Exception;
 
 class Container
 {
@@ -68,7 +68,7 @@ class Container
      *
      * @param string $abstract The abstract to construct an instance of.
      * @param array $parameters An array of parameters to pass to the constructor.
-     * @throws Exception If the dependency cannot be resolved.
+     * @throws ContainerException If the dependency cannot be resolved.
      * @return mixed The constructed instance of the abstract.
      */
     public function make(string $abstract, array $parameters = []): mixed
@@ -90,7 +90,7 @@ class Container
             return $instance;
         }
 
-        throw new Exception("Unable to resolve dependency: {$abstract}");
+        throw new ContainerException("Unable to resolve dependency: {$abstract}");
     }
 
     /**
@@ -109,7 +109,7 @@ class Container
      *
      * @param mixed $concrete The concrete implementation of the class to build.
      * @param array $parameters An array of parameters to be passed to the class constructor.
-     * @throws Exception if the class is not instantiable.
+     * @throws ContainerException if the class is not instantiable.
      * @return mixed An instance of the class.
      */
     protected function build(mixed $concrete, array $parameters = []): mixed
@@ -121,7 +121,7 @@ class Container
         $reflector = new ReflectionClass($concrete);
 
         if (!$reflector->isInstantiable()) {
-            throw new Exception("Class $concrete is not instantiable");
+            throw new ContainerException("Class $concrete is not instantiable");
         }
 
         $constructor = $reflector->getConstructor();
@@ -181,6 +181,6 @@ class Container
 
     public function __wakeup()
     {
-        throw new Exception('Cannot unserialize a container.');
+        throw new ContainerException('Cannot unserialize a container.');
     }
 }
