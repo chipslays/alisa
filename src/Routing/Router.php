@@ -18,7 +18,7 @@ trait Router
 
     protected array $middleware = [];
 
-    protected ?Closure $fallbackHandler = null;
+    protected Closure|array|string|null $fallbackHandler = null;
 
     protected ?array $matchedRoute = null;
 
