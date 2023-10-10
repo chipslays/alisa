@@ -72,7 +72,13 @@ class Markup
             'text' => preg_replace('/{\s?audio:(.+?)}/iu', '', preg_replace('/{\s?\/\s?audio\s?}/iu', '', $markup['text'])),
             'tts' => preg_replace_callback('/{\s?audio:(.+?)}/iu', function ($match) {
                 $variant = self::variant($match[1]);
-                return '<speaker audio="' . (Asset::get($variant) ?? $variant) . '">';
+                $variant = Asset::get($variant) ?? $variant;
+
+                if (!str_ends_with($variant, '.opus')) {
+                    $variant .= '.opus';
+                }
+
+                return '<speaker audio="' . $variant . '">';
             }, $markup['tts']),
         ];
     }
