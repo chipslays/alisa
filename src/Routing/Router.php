@@ -24,9 +24,13 @@ trait Router
 
     protected array $groupMiddlewares = [];
 
-    public function middleware(string $name, Closure|array|string $handler): self
+    public function middleware(string|array $name, Closure|array|string|null $handler = null): self
     {
-        $this->middleware[$name] = $handler;
+        if (is_array($name)) {
+            $this->middleware = [...$this->middleware, ...$name];
+        } else {
+            $this->middleware[$name] = $handler;
+        }
 
         return $this;
     }
@@ -236,17 +240,19 @@ trait Router
 
         array_reduce(
             array_reverse($route['middleware']),
-            function ($stack, $middleware) use ($route) {
+            function ($stack, $middleware) {
                 return function () use ($stack, $middleware) {
                     if (is_string($middleware)) {
                         if (isset($this->middleware[$middleware])) {
                             $middleware = $this->middleware[$middleware];
+                        } elseif (class_exists($middleware)) {
+                            $middleware = new $middleware;
                         } else {
                             throw new RouterException("Middleware not exists: {$middleware}");
                         }
                     }
 
-                    return call_user_func($middleware, $stack);
+                    return $this->fire($middleware, [$stack, $this->request]);
                 };
             }
         )();
@@ -254,7 +260,7 @@ trait Router
         return $this->matchedRoute !== null;
     }
 
-    protected function fire(Closure|array|string $route, array $parameters = []): void
+    protected function fire(Closure|array|string|callable $route, array $parameters = []): void
     {
         // из роута
         if (is_array($route) && isset($route['handler'])) {
