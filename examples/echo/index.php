@@ -12,9 +12,9 @@ $skill->onStart(function (Alisa $alisa) {
     $alisa->reply('Привет мир!');
 });
 
-// Ответ на любую комманду
+// Ответ на любую команду
 $skill->onFallback(function (Alisa $alisa) {
-    // Получаем текст комманды
+    // Получаем текст команды
     $text = $alisa->request()->get('request.command');
 
     // Применяем эффект "хомяка" для голоса
