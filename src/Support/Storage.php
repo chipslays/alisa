@@ -30,7 +30,7 @@ class Storage
         return $this;
     }
 
-    public function get(string $key, mixed $default): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (!$this->has($key)) {
             return $default;
