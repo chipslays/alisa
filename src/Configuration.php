@@ -5,15 +5,12 @@ namespace Alisa;
 class Configuration
 {
     protected $options = [
-        'skill_id' => null,
-        'token' => null,
+        'skill_id' => null, // идентификатор навыка
+        'token' => null, // OAuth-токен для загрузки изображений
         'storage' => null, // путь до папки где будут храниться файлы
-        'event' => null,
-        'assets' => [
-            'game-win-1' => 'alice-sounds-game-win-1.opus',
-            'game-win-2' => 'alice-sounds-game-win-2.opus',
-            'game-win-3' => 'alice-sounds-game-win-3.opus',
-        ],
+        'images' => null, // путь до папки где будут храниться изображения
+        'event' => null, // событие от диалогов (например для тестов или cloud function)
+        'assets' => [], // алиасы для изображений и звуков
     ];
 
     public function __construct(array $options = [])
