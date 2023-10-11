@@ -50,7 +50,7 @@ class Context
 
     public function storage(): Storage
     {
-        if (!isset($this->request)) {
+        if (!isset($this->storage)) {
             $this->storage = $this->container->make(Storage::class);
         }
 
