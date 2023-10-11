@@ -130,10 +130,12 @@ trait Router
     public function onCommand(string|array $command, Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->on(function (Request $request) use ($command): bool|array {
-            if (
-                $request->get('request.type') == 'SimpleUtterance' &&
-                $matches = $this->match($command, $request->get('request.command'))
-            ) {
+            // вернуть массив параметров, они будут переданы хендлер
+            // вернуть false тогда проверку не пройдет
+
+            $matches = $this->match($command, $request->get('request.command'));
+
+            if ($request->get('request.type') == 'SimpleUtterance' && $matches !== null) {
                 return $matches;
             }
 
@@ -175,7 +177,8 @@ trait Router
                  * $router->on(function (Alisa\Alisa $alisa): bool|array { ... }, ...)
                  */
                 if ($needles instanceof Closure) {
-                    if ($matches = call_user_func($needles, $this->request)) {
+                    $matches = call_user_func($needles, $this->request);
+                    if ($matches !== false) {
                         if (is_array($matches)) {
                             $this->pipeline($index, $route, $matches);
                         } else {
