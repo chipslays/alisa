@@ -76,7 +76,7 @@ class Skill
             return null;
         }
 
-        $parameters = explode('#', $repeat); // e.g. "sceneName:0/param1,param2"
+        $parameters = explode('#', $repeat); // e.g. "sceneName:0#param1&&param2"
         [$sceneName, $index] = explode(':', array_shift($parameters));
 
         if ($sceneName !== '') {
