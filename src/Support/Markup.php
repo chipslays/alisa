@@ -165,7 +165,7 @@ class Markup
     public static function process(array $markup): array
     {
         $methods = [
-            'pause', 'text', 'tts', 'space', 'br', 'effect',
+            'pause', 'text', 'tts', 'space', 'br', 'audio', 'effect',
             'plural', 'rand', 'textTts', 'accent', 'trim',
         ];
 
