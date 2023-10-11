@@ -24,6 +24,11 @@ trait Router
 
     protected array $groupMiddlewares = [];
 
+    public function getRoutes(): array
+    {
+        return array_sort_by_priority($this->routes);
+    }
+
     public function middleware(string|array $name, Closure|array|string|null $handler = null): self
     {
         if (is_array($name)) {
@@ -152,14 +157,19 @@ trait Router
         return $this;
     }
 
-    public function dispatch(): ?array
+    public function dispatch(): void
     {
-        return $this->matchRoute();
+        $this->matchRoute();
     }
 
-    public function matchRoute(): ?array
+    public function getMatchedRoute(): ?array
     {
-        foreach (array_sort_by_priority($this->routes) as $route) {
+        return $this->matchedRoute;
+    }
+
+    public function matchRoute(): void
+    {
+        foreach (array_sort_by_priority($this->routes) as $index => $route) {
             foreach ((array) $route['pattern'] as $pattern => $needles) {
                 /**
                  * $router->on(function (Alisa\Alisa $alisa): bool|array { ... }, ...)
@@ -167,9 +177,9 @@ trait Router
                 if ($needles instanceof Closure) {
                     if ($matches = call_user_func($needles, $this->request)) {
                         if (is_array($matches)) {
-                            $this->pipeline($route, $matches);
+                            $this->pipeline($index, $route, $matches);
                         } else {
-                            $this->pipeline($route);
+                            $this->pipeline($index, $route);
                         }
 
                         break 2;
@@ -186,7 +196,7 @@ trait Router
 
                 foreach ((array) $needles as $needle) {
                     if (($matches = $this->match($needle, $haystack)) !== null) {
-                        $this->pipeline($route, $matches);
+                        $this->pipeline($index, $route, $matches);
                         break 3;
                     }
                 }
@@ -196,8 +206,6 @@ trait Router
         if (!$this->matchedRoute && $this->fallbackHandler !== null) {
             $this->fire($this->fallbackHandler, [new Context]);
         }
-
-        return $this->matchedRoute;
     }
 
     public function match($needle, $haystack): ?array
@@ -230,11 +238,17 @@ trait Router
         return null;
     }
 
-    protected function pipeline(array $route, array $parameters = []): bool
+    protected function pipeline(int $index, array $route, array $parameters = []): bool
     {
         // добавляем в конец обработчик
-        $route['middleware'][] = function () use ($route, $parameters) {
+        $route['middleware'][] = function () use ($index, $route, $parameters) {
             $this->matchedRoute = $route;
+            $this->matchedRoute['index'] = $index; // индекс роута из массива
+            $this->matchedRoute['scene'] = isset($this->name) ?: null; // name есть только у Scene класса
+
+            $repeatStr = $this->matchedRoute['scene'] . ':' . $this->matchedRoute['index'] . '#' . implode('&&', $parameters);
+            $this->request()->session()->set('repeat', $repeatStr);
+
             $this->fire($route, [new Context, ...$parameters]);
         };
 

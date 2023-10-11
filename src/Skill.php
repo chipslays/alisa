@@ -60,6 +60,43 @@ class Skill
         Asset::override($this->config()->get('assets', []));
     }
 
+    protected function canAutoRepeat(): ?array
+    {
+        if (!$this->config->get('auto_repeat')) {
+            return null;
+        }
+
+        if (!$repeat = $this->request->session()->get('repeat')) {
+            return null;
+        }
+
+        $intents = $this->request->get('request.nlu.intents', []);
+
+        if (!array_key_exists('YANDEX.REPEAT', $intents)) {
+            return null;
+        }
+
+        $parameters = explode('#', $repeat); // e.g. "sceneName:0/param1,param2"
+        [$sceneName, $index] = explode(':', array_shift($parameters));
+
+        if ($sceneName !== '') {
+            if ($scene = Stage::get($sceneName)) {
+                $route = $scene->getRoutes()[$index];
+            }
+        } else {
+            $route = $this->getRoutes()[$index] ?? null;
+        }
+
+        if (!$route) {
+            return null;
+        }
+
+        return [
+            'handler' => $route['handler'],
+            'parameters' => array_filter(explode('&&', implode('#', $parameters)), fn ($item) => $item !== ''),
+        ];
+    }
+
     public function onBeforeRun(Closure $handler, int $priority = 500): self
     {
         $this->onBeforeRunHandlers[$priority][] = $handler;
@@ -96,9 +133,9 @@ class Skill
 
     public function scene(string $name, Closure $callback): self
     {
-        $scene = new Scene;
+        $scene = new Scene($name);
 
-        Stage::add($name, $scene);
+        Stage::add($scene);
 
         call_user_func($callback, $scene);
 
@@ -119,14 +156,18 @@ class Skill
                 call_user_func($handler);
             }
 
-            if ($scene = Stage::get($this->request()->session()->get('scene'))) {
-                $matchedRoute = $scene->dispatch();
+            if ($repeatData = $this->canAutoRepeat()) {
+                $this->fire($repeatData['handler'], [new Context, ...$repeatData['parameters']]);
             } else {
-                $matchedRoute = $this->dispatch();
+                if ($scene = Stage::get($this->request()->session()->get('scene'))) {
+                    $scene->dispatch();
+                } else {
+                    $this->dispatch();
+                }
             }
 
             foreach (array_sort_by_priority($this->onAfterRunHandlers) as $handler) {
-                call_user_func($handler, $matchedRoute);
+                call_user_func($handler);
             }
         } catch (Throwable $th) {
             if ($this->exceptionHandler) {
