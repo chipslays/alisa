@@ -6,9 +6,9 @@ class Stage
 {
     protected static array $scenes = [];
 
-    public static function add(string $name, Scene $scene): void
+    public static function add(Scene $scene): void
     {
-        self::$scenes[$name] = $scene;
+        self::$scenes[$scene->getName()] = $scene;
     }
 
     public static function get(?string $name): ?Scene

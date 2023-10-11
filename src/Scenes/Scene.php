@@ -12,8 +12,13 @@ class Scene
 
     protected Request $request;
 
-    public function __construct()
+    public function __construct(protected string $name)
     {
         $this->request = Container::getInstance()->make(Request::class);
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }
