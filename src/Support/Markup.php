@@ -142,6 +142,20 @@ class Markup
         ];
     }
 
+    public static function quotes(array $markup): array
+    {
+        $markup['text'] = str_replace('<<<', '«', $markup['text']);
+        $markup['text'] = str_replace('>>>', '»', $markup['text']);
+
+        $markup['tts'] = str_replace('<<<', '«', $markup['tts']);
+        $markup['tts'] = str_replace('>>>', '»', $markup['tts']);
+
+        return [
+            'text' => $markup['text'],
+            'tts' => $markup['tts'],
+        ];
+    }
+
     public static function variant(array|string $variants): string
     {
         if (is_string($variants)) {
@@ -166,7 +180,7 @@ class Markup
     {
         $methods = [
             'pause', 'text', 'tts', 'space', 'br', 'audio', 'effect',
-            'plural', 'rand', 'textTts', 'accent', 'trim',
+            'plural', 'rand', 'textTts', 'accent', 'quotes', 'trim',
         ];
 
         return self::pipe($markup, $methods);
@@ -174,6 +188,6 @@ class Markup
 
     public static function trimWhitespace(string $str): string
     {
-        return trim(preg_replace('/ {2,}/', ' ', $str));
+        return trim(implode("\n", array_map('trim', explode("\n", preg_replace('/ {2,}/', ' ', $str)))));
     }
 }
