@@ -14,7 +14,9 @@ class Storage
         /** @var Configuration */
         $config = Container::getInstance()->make(Configuration::class);
 
-        $this->path = rtrim($config->get('storage', sys_get_temp_dir() . '/alisa'), '\/');
+        $tempPath = sys_get_temp_dir() . '/alisa/' . $config->get('skill_id', '_all_skills') . '/storage';
+
+        $this->path = rtrim($config->get('storage', $tempPath), '\/');
 
         if (!file_exists($this->path)) {
             mkdir($this->path, recursive: true);
