@@ -102,14 +102,12 @@ class Alisa
 
         $response = new Response;
 
-        switch ($type::class) {
-            case AbstractCard::class:
-                $response->card($type);
-                break;
+        if ($type instanceof AbstractCard) {
+            $response->card($type);
+        }
 
-            case AudioPlayer::class:
-                $response->player($type);
-                break;
+        if ($type instanceof AudioPlayer) {
+            $response->player($type);
         }
 
         echo $response
