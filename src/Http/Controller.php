@@ -2,8 +2,8 @@
 
 namespace Alisa\Http;
 
-use Alisa\Alisa;
 use Alisa\Configuration;
+use Alisa\Context;
 use Alisa\Skill;
 use Alisa\Support\Container;
 
@@ -15,7 +15,7 @@ class Controller
 
     protected Skill $skill;
 
-    protected Alisa $alisa;
+    protected Context $ctx;
 
     protected Configuration $config;
 
@@ -26,7 +26,7 @@ class Controller
 
     protected function bootstrap(): void
     {
-        $this->alisa = new Alisa;
+        $this->ctx = new Context;
         $this->container = Container::getInstance();
         $this->request = $this->container->make(Request::class);
         $this->skill = $this->container->make(Skill::class);

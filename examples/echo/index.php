@@ -1,6 +1,6 @@
 <?php
 
-use Alisa\Alisa;
+use Alisa\Context;
 use Alisa\Skill;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -8,17 +8,17 @@ require __DIR__ . '/../../vendor/autoload.php';
 $skill = new Skill;
 
 // Сообщение при новой сессии
-$skill->onStart(function (Alisa $alisa) {
-    $alisa->reply('Привет мир!');
+$skill->onStart(function (Context $ctx) {
+    $ctx->reply('Привет мир!');
 });
 
 // Ответ на любую команду
-$skill->onFallback(function (Alisa $alisa) {
+$skill->onFallback(function (Context $ctx) {
     // Получаем текст команды
-    $text = $alisa->request()->get('request.command');
+    $text = $ctx->request()->get('request.command');
 
     // Применяем эффект "хомяка" для голоса
-    $alisa->reply('{effect:hamster}' . $text);
+    $ctx->reply('{effect:hamster}' . $text);
 });
 
 $skill->run();

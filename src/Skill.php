@@ -46,7 +46,7 @@ class Skill
 
         // https://yandex.ru/dev/dialogs/alice/doc/health-check.html
         if ($request->isPing()) {
-            exit((new Alisa)->reply('pong', end: true));
+            exit((new Context)->reply('pong', end: true));
         }
 
         $this->container->singleton(Configuration::class, fn () => $this->config);

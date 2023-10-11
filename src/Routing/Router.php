@@ -2,7 +2,7 @@
 
 namespace Alisa\Routing;
 
-use Alisa\Alisa;
+use Alisa\Context;
 use Alisa\Http\Request;
 use Alisa\Exceptions\RouterException;
 use \Closure;
@@ -194,7 +194,7 @@ trait Router
         }
 
         if (!$this->matchedRoute && $this->fallbackHandler !== null) {
-            $this->fire($this->fallbackHandler, [new Alisa]);
+            $this->fire($this->fallbackHandler, [new Context]);
         }
 
         return $this->matchedRoute;
@@ -235,7 +235,7 @@ trait Router
         // добавляем в конец обработчик
         $route['middleware'][] = function () use ($route, $parameters) {
             $this->matchedRoute = $route;
-            $this->fire($route, [new Alisa, ...$parameters]);
+            $this->fire($route, [new Context, ...$parameters]);
         };
 
         array_reduce(

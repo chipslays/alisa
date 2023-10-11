@@ -10,7 +10,7 @@ use Alisa\Support\Markup;
 use Alisa\Yandex\Types\AudioPlayer\AudioPlayer;
 use Alisa\Yandex\Types\Card\AbstractCard;
 
-class Alisa
+class Context
 {
     protected Request $request;
 
