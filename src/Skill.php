@@ -79,22 +79,42 @@ class Skill
         $parameters = explode('#', $repeat); // e.g. "sceneName:0#param1&&param2"
         [$sceneName, $index] = explode(':', array_shift($parameters));
 
-        if ($sceneName !== '') {
-            if ($scene = Stage::get($sceneName)) {
-                $route = $scene->getRoutes()[$index];
+        if ($index == '-1') {
+            if ($sceneName !== '') {
+                if ($scene = Stage::get($sceneName)) {
+                    $handler = $scene->getFallbackHandler();
+                }
+            } else {
+                $handler = $this->getFallbackHandler();
             }
+
+            if (!$handler) {
+                return null;
+            }
+
+            return [
+                'handler' => $handler,
+                'parameters' => array_filter(explode('&&', implode('#', $parameters)), fn ($item) => $item !== ''),
+            ];
         } else {
-            $route = $this->getRoutes()[$index] ?? null;
+            if ($sceneName !== '') {
+                if ($scene = Stage::get($sceneName)) {
+                    $route = $scene->getRoutes()[$index];
+                }
+            } else {
+                $route = $this->getRoutes()[$index] ?? null;
+            }
+
+            if (!$route) {
+                return null;
+            }
+
+            return [
+                'handler' => $route['handler'],
+                'parameters' => array_filter(explode('&&', implode('#', $parameters)), fn ($item) => $item !== ''),
+            ];
         }
 
-        if (!$route) {
-            return null;
-        }
-
-        return [
-            'handler' => $route['handler'],
-            'parameters' => array_filter(explode('&&', implode('#', $parameters)), fn ($item) => $item !== ''),
-        ];
     }
 
     public function onBeforeRun(Closure $handler, int $priority = 500): self

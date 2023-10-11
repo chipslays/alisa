@@ -29,6 +29,11 @@ trait Router
         return array_sort_by_priority($this->routes);
     }
 
+    public function getFallbackHandler(): Closure|array|string|null
+    {
+        return $this->fallbackHandler;
+    }
+
     public function middleware(string|array $name, Closure|array|string|null $handler = null): self
     {
         if (is_array($name)) {
@@ -164,11 +169,6 @@ trait Router
         $this->matchRoute();
     }
 
-    public function getMatchedRoute(): ?array
-    {
-        return $this->matchedRoute;
-    }
-
     public function matchRoute(): void
     {
         foreach (array_sort_by_priority($this->routes) as $index => $route) {
@@ -207,6 +207,8 @@ trait Router
         }
 
         if (!$this->matchedRoute && $this->fallbackHandler !== null) {
+            $repeatStr = ':-1#';
+            $this->request()->session()->set('repeat', $repeatStr);
             $this->fire($this->fallbackHandler, [new Context]);
         }
     }
@@ -245,6 +247,7 @@ trait Router
     {
         // добавляем в конец обработчик
         $route['middleware'][] = function () use ($index, $route, $parameters) {
+            // че с ним делать куда зачем пусть будет пока
             $this->matchedRoute = $route;
             $this->matchedRoute['index'] = $index; // индекс роута из массива
             $this->matchedRoute['scene'] = isset($this->name) ?: null; // name есть только у Scene класса
