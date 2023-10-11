@@ -36,6 +36,11 @@ class Scene
         return $this->container;
     }
 
+    public function request(): Request
+    {
+        return $this->request;
+    }
+
     public function config(): Configuration
     {
         if (!isset($this->config)) {
