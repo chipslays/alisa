@@ -21,7 +21,7 @@ class Buttons
         self::$buttons[$alias] = $value;
     }
 
-    public static function get(string $alias, ?array $default = null): ?string
+    public static function get(string $alias, array $default = []): array
     {
         return self::$buttons[$alias] ?? $default;
     }
