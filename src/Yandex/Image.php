@@ -4,6 +4,7 @@ namespace Alisa\Yandex;
 
 use Alisa\Configuration;
 use Alisa\Exceptions\ImageException;
+use Alisa\Http\Request;
 use Alisa\Skill;
 use Alisa\Support\Container;
 use \CURLFile;
@@ -30,7 +31,12 @@ class Image
         }
 
         if (!$this->skillId = $config->get('skill_id')) {
-            throw new ImageException('Заполните в конфиге идентификатор навыка (skill_id)');
+            /** @var Request */
+            $request = Container::getInstance()->make(Request::class);
+
+            if (!$this->skillId = $request->get('session.skill_id')) {
+                throw new ImageException('Заполните в конфиге идентификатор навыка (skill_id)');
+            }
         }
 
         $this->path = rtrim($config->get('images', sys_get_temp_dir() . '/alisa/' . $this->skillId . '/images'), '\/');
