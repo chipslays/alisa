@@ -2,7 +2,7 @@
 
 namespace Alisa\Yandex\Types\Card;
 
-use Alisa\Asset;
+use Alisa\Support\Asset;
 
 class BigImage extends AbstractCard
 {

@@ -2,7 +2,7 @@
 
 namespace Alisa\Support;
 
-use Alisa\Asset;
+use Alisa\Support\Asset;
 
 use function Alisa\Support\Helpers\plural;
 

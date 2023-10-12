@@ -6,6 +6,7 @@ use Alisa\Http\Request;
 use Alisa\Routing\Router;
 use Alisa\Scenes\Scene;
 use Alisa\Scenes\Stage;
+use Alisa\Support\Asset;
 use Alisa\Support\Storage;
 use Alisa\Support\Container;
 use \Closure;
