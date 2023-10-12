@@ -136,11 +136,9 @@ class Request
         return new Collection($this->get('request.nlu.intents', []));
     }
 
-    public function intent(string $id): ?Collection
+    public function intent(string $id, mixed $default = null): mixed
     {
-        $arr = $this->get('request.nlu.intents.' . $id, null);
-
-        return $arr ? new Collection($arr) : null;
+        return $this->get('request.nlu.intents.' . $id, $default);
     }
 
     public function isPing(): bool
