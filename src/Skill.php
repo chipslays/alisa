@@ -117,14 +117,14 @@ class Skill
 
     }
 
-    public function onBeforeRun(Closure $handler, int $priority = 500): self
+    public function onBeforeRun(Closure|array|string $handler, int $priority = 500): self
     {
         $this->onBeforeRunHandlers[$priority][] = $handler;
 
         return $this;
     }
 
-    public function onAfterRun(Closure $handler, int $priority = 500): self
+    public function onAfterRun(Closure|array|string $handler, int $priority = 500): self
     {
         $this->onAfterRunHandlers[$priority][] = $handler;
 
@@ -173,7 +173,7 @@ class Skill
     {
         try {
             foreach (array_sort_by_priority($this->onBeforeRunHandlers) as $handler) {
-                call_user_func($handler);
+                $this->fire($handler);
             }
 
             if ($repeatData = $this->canAutoRepeat()) {
@@ -187,7 +187,7 @@ class Skill
             }
 
             foreach (array_sort_by_priority($this->onAfterRunHandlers) as $handler) {
-                call_user_func($handler);
+                $this->fire($handler);
             }
         } catch (Throwable $th) {
             if ($this->exceptionHandler) {
