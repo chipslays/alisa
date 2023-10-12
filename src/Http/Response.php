@@ -45,9 +45,9 @@ class Response
             $buttons = Buttons::get($buttons);
         }
 
-        $this->data['response']['buttons'] = array_filter(array_map(function (Button|array $button) {
+        $this->data['response']['buttons'] = array_map(function (Button|array $button) {
             return $button instanceof Button ? $button->toArray() : $button;
-        }, $buttons));
+        }, array_filter($buttons));
 
         return $this;
     }
