@@ -12,6 +12,7 @@ class Configuration
         'auto_repeat' => true, // авто-ответ на основе предыдущего хендлера для интента YANDEX.REPEAT
         'event' => null, // событие от диалогов (например для тестов или cloud function)
         'assets' => [], // алиасы для изображений и звуков
+        'middlewares' => [], // мидлвары
     ];
 
     public function __construct(array $options = [])
@@ -29,5 +30,10 @@ class Configuration
         $this->options[$key] = $value;
 
         return $this;
+    }
+
+    public function has(string $key): bool
+    {
+        return isset($this->options[$key]);
     }
 }
