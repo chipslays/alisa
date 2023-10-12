@@ -2,15 +2,24 @@
 
 namespace Alisa\Yandex\Types\Card;
 
+use Alisa\Support\Markup;
+
 class Button
 {
+    protected string $text;
+
     protected ?string $url = null;
 
     protected array $payload = [];
 
-    public function __construct(protected string $text = '', protected ?string $action = null)
+    public function __construct(string|array $text = '', protected ?string $action = null)
     {
-        //
+        $this->text = is_array($text) ? Markup::variant($text) : $text;
+        $this->text = Markup::pipe([
+            'text' => $text, 'tts' => '',
+        ], [
+            'space', 'plural', 'rand', 'quotes', 'trim',
+        ])['text'];
     }
 
     public function action(string $action): self

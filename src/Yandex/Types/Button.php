@@ -2,17 +2,26 @@
 
 namespace Alisa\Yandex\Types;
 
+use Alisa\Support\Markup;
+
 class Button
 {
+    protected string $title;
+
     protected ?string $url = null;
 
     protected array $payload = [];
 
     protected bool $hide = true;
 
-    public function __construct(protected string $title, protected ?string $action = null)
+    public function __construct(string|array $title, protected ?string $action = null)
     {
-        //
+        $this->$title = is_array($title) ? Markup::variant($title) : $title;
+        $this->title = Markup::pipe([
+            'text' => $title, 'tts' => '',
+        ], [
+            'space', 'plural', 'rand', 'quotes', 'trim',
+        ])['text'];
     }
 
     public function action(string $action): self
