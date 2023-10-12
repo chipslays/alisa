@@ -2,6 +2,7 @@
 
 namespace Alisa\Http;
 
+use Alisa\Support\Buttons;
 use Alisa\Support\Container;
 use Alisa\Yandex\Types\AudioPlayer\AudioPlayer;
 use Alisa\Yandex\Types\Button;
@@ -38,8 +39,12 @@ class Response
         return $this;
     }
 
-    public function buttons(array $buttons): static
+    public function buttons(array|string $buttons): static
     {
+        if (is_string($buttons)) {
+            $buttons = Buttons::get($buttons);
+        }
+
         $this->data['response']['buttons'] = array_filter(array_map(function (Button|array $button) {
             return $button instanceof Button ? $button->toArray() : $button;
         }, $buttons));

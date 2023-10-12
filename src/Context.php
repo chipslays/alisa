@@ -71,7 +71,7 @@ class Context
         return $this;
     }
 
-    public function reply(string|array $text = '', ?string $tts = null, array $buttons = [], bool $end = false): void
+    public function reply(string|array $text = '', ?string $tts = null, array|string $buttons = [], bool $end = false): void
     {
         if (is_array($text)) {
             $text = Markup::variant($text);
