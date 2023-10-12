@@ -110,7 +110,12 @@ class Request
         return $this->data->all();
     }
 
-    public function entities(string $type): array
+    public function entities(): Collection
+    {
+        return new Collection($this->get('request.nlu.entities', []));
+    }
+
+    public function entity(string $type): array
     {
         $result = [];
 
@@ -124,6 +129,18 @@ class Request
         }
 
         return $result;
+    }
+
+    public function intents(): Collection
+    {
+        return new Collection($this->get('request.nlu.intents', []));
+    }
+
+    public function intent(string $id): ?Collection
+    {
+        $arr = $this->get('request.nlu.intents.' . $id, null);
+
+        return $arr ? new Collection($arr) : null;
     }
 
     public function isPing(): bool
