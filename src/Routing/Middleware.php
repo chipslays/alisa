@@ -35,5 +35,5 @@ abstract class Middleware
         $this->config = $this->container->make(Configuration::class);
     }
 
-    abstract public function __invoke(Closure $next, Request $request): mixed;
+    abstract public function __invoke(Closure $next, Request $request);
 }
