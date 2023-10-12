@@ -12,7 +12,7 @@ class Configuration
         'auto_repeat' => true, // авто-ответ на основе предыдущего хендлера для интента YANDEX.REPEAT
         'event' => null, // событие от диалогов (например для тестов или cloud function)
         'assets' => [], // алиасы для изображений и звуков
-        'middlewares' => [], // мидлвары
+        'middlewares' => [], // глобальные мидлвары
     ];
 
     public function __construct(array $options = [])

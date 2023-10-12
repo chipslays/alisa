@@ -2,6 +2,7 @@
 
 namespace Alisa;
 
+use Alisa\Exceptions\SkillException;
 use Alisa\Http\Request;
 use Alisa\Routing\Router;
 use Alisa\Scenes\Scene;
@@ -29,6 +30,8 @@ class Skill
     protected array $onBeforeRunHandlers = [];
 
     protected array $onAfterRunHandlers = [];
+
+    protected array $globalMiddlewares = [];
 
     protected Closure|array|string|null $exceptionHandler = null;
 
@@ -59,6 +62,8 @@ class Skill
         $this->storage = new Storage;
 
         Asset::override($this->config()->get('assets', []));
+
+        $this->globalMiddlewares = $this->config()->get('middlewares', []);
     }
 
     protected function canAutoRepeat(): ?array
@@ -173,29 +178,51 @@ class Skill
     public function run(): void
     {
         try {
-            foreach (array_sort_by_priority($this->onBeforeRunHandlers) as $handler) {
-                $this->fire($handler);
-            }
-
-            if ($repeatData = $this->canAutoRepeat()) {
-                $this->fire($repeatData['handler'], [new Context, ...$repeatData['parameters']]);
-            } else {
-                if ($scene = Stage::get($this->request()->session()->get('scene'))) {
-                    $scene->dispatch();
-                } else {
-                    $this->dispatch();
-                }
-            }
-
-            foreach (array_sort_by_priority($this->onAfterRunHandlers) as $handler) {
-                $this->fire($handler);
-            }
+            array_reduce(
+                array_reverse($this->globalMiddlewares),
+                function ($stack, $middleware) {
+                    return function () use ($stack, $middleware) {
+                        if (is_string($middleware)) {
+                            if (isset($this->middleware[$middleware])) {
+                                $middleware = $this->middleware[$middleware];
+                            } elseif (class_exists($middleware)) {
+                                $middleware = new $middleware;
+                            } else {
+                                throw new SkillException("Global middleware not exists: {$middleware}");
+                            }
+                        }
+                        return $this->fire($middleware, [$stack, $this->request]);
+                    };
+                },
+                fn () => $this->runExecute()
+            )();
         } catch (Throwable $th) {
             if ($this->exceptionHandler) {
                 $this->fire($this->exceptionHandler, [$th, $this->request]);
             } else {
                 throw $th;
             }
+        }
+    }
+
+    protected function runExecute()
+    {
+        foreach (array_sort_by_priority($this->onBeforeRunHandlers) as $handler) {
+            $this->fire($handler);
+        }
+
+        if ($repeatData = $this->canAutoRepeat()) {
+            $this->fire($repeatData['handler'], [new Context, ...$repeatData['parameters']]);
+        } else {
+            if ($scene = Stage::get($this->request()->session()->get('scene'))) {
+                $scene->dispatch();
+            } else {
+                $this->dispatch();
+            }
+        }
+
+        foreach (array_sort_by_priority($this->onAfterRunHandlers) as $handler) {
+            $this->fire($handler);
         }
     }
 
