@@ -19,9 +19,9 @@ class Request
 {
     protected Collection $data;
 
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
-        if ($data) {
+        if ($data && count($data) > 0) {
             $this->event($data);
         } else {
             $this->capture();
@@ -83,12 +83,8 @@ class Request
         return $this;
     }
 
-    protected function capture(?array $data = null): self
+    protected function capture(): self
     {
-        if ($data) {
-            return $this->event($data);
-        }
-
         $input = file_get_contents('php://input');
 
         if (!$input) {
