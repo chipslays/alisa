@@ -126,8 +126,8 @@ class Image
     public function upload(string $image, bool $cache = true): ?string
     {
         // Пробуем достать картинку из кеша
-        if ($cache && $response = $this->retrieve($image)) {
-            return $response;
+        if ($cache && $imageId = $this->retrieve($image)) {
+            return $imageId;
         }
 
         if (!file_exists($image)) {
@@ -136,6 +136,7 @@ class Image
             $response = $this->uploadByFile($image);
         }
 
+        // Если ответ не содержит картинку
         if (!isset($response['image']['id'])) {
             return null;
         }
@@ -175,9 +176,11 @@ class Image
         /** @var Skill $skill */
         $skill = Container::getInstance()->make(Skill::class);
 
+        // Удаляем картинку
         $skill->onAfterRun(function () use ($id, $image, $cache) {
             $this->delete($id);
 
+            // Если картинка закеширована, удаляем кеш тоже
             if ($cache) {
                 $this->forget($image);
             }

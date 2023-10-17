@@ -22,9 +22,9 @@ class Request
     /**
      * @param array|null $data Данные запроса в виде массива.
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
-        if ($data) {
+        if ($data && count($data) > 0) {
             $this->event($data);
         } else {
             $this->capture();
@@ -112,15 +112,10 @@ class Request
     }
 
     /**
-     * @param array|null $data
      * @return self
      */
-    protected function capture(?array $data = null): self
+    protected function capture(): self
     {
-        if ($data) {
-            return $this->event($data);
-        }
-
         $input = file_get_contents('php://input');
 
         if (!$input) {
@@ -200,13 +195,12 @@ class Request
      * Получить конкретный интент.
      *
      * @param string $id
+     * @param mixed $default
      * @return Collection|null
      */
-    public function intent(string $id): ?Collection
+    public function intent(string $id, mixed $default = null): mixed
     {
-        $arr = $this->get('request.nlu.intents.' . $id, null);
-
-        return $arr ? new Collection($arr) : null;
+        return $this->get('request.nlu.intents.' . $id, $default);
     }
 
     /**
