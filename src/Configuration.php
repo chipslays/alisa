@@ -15,16 +15,33 @@ class Configuration
         'middlewares' => [], // глобальные мидлвары
     ];
 
+    /**
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         $this->options = array_replace_recursive($this->options, $options);
     }
 
+    /**
+     * Получить значение опции.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->options[$key] ?? $default;
     }
 
+    /**
+     * Установить значение опции.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return self
+     */
     public function set(string $key, mixed $value): self
     {
         $this->options[$key] = $value;
@@ -32,6 +49,12 @@ class Configuration
         return $this;
     }
 
+    /**
+     * Существует ли опция.
+     *
+     * @param string $key
+     * @return boolean
+     */
     public function has(string $key): bool
     {
         return isset($this->options[$key]);

@@ -19,6 +19,9 @@ class Request
 {
     protected Collection $data;
 
+    /**
+     * @param array|null $data Данные запроса в виде массива.
+     */
     public function __construct(array $data = null)
     {
         if ($data) {
@@ -30,6 +33,9 @@ class Request
         $this->bootstrap();
     }
 
+    /**
+     * @return void
+     */
     protected function bootstrap(): void
     {
         $container = Container::getInstance();
@@ -61,21 +67,43 @@ class Request
         }
     }
 
+    /**
+     * Получить экземпляр сессии в рамках текущей сессии.
+     *
+     * @return Session
+     */
     public function session(): Session
     {
         return $this->data->get('state.session');
     }
 
+    /**
+     * Получить экземпляр сесси поверхности где запущн навык.
+     *
+     * @return Application
+     */
     public function application(): Application
     {
         return $this->data->get('state.application');
     }
 
+    /**
+     * Получить экземпляр сессии пользователя.
+     *
+     * Если пользователь не авторизован в Яндексе,
+     * данные в классе `User` будут пустыми.
+     *
+     * @return User
+     */
     public function user(): User
     {
         return $this->data->get('state.user');
     }
 
+    /**
+     * @param array $data
+     * @return self
+     */
     protected function event(array $data): self
     {
         $this->data = new Collection($data);
@@ -83,6 +111,10 @@ class Request
         return $this;
     }
 
+    /**
+     * @param array|null $data
+     * @return self
+     */
     protected function capture(?array $data = null): self
     {
         if ($data) {
@@ -100,21 +132,44 @@ class Request
         return $this;
     }
 
+    /**
+     * Получить значение из запроса от Яндекс Диалогов.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->data->get($key, $default);
     }
 
+    /**
+     * Вернуть запрос в виде массива.
+     *
+     * @return array
+     */
     public function all(): array
     {
         return $this->data->all();
     }
 
+    /**
+     * Получить все сущности из запроса.
+     *
+     * @return Collection
+     */
     public function entities(): Collection
     {
         return new Collection($this->get('request.nlu.entities', []));
     }
 
+    /**
+     * Получить конкретную сущность.
+     *
+     * @param string $type
+     * @return array
+     */
     public function entity(string $type): array
     {
         $result = [];
@@ -131,11 +186,22 @@ class Request
         return $result;
     }
 
+    /**
+     * Получить все интенты из запроса.
+     *
+     * @return Collection
+     */
     public function intents(): Collection
     {
         return new Collection($this->get('request.nlu.intents', []));
     }
 
+    /**
+     * Получить конкретный интент.
+     *
+     * @param string $id
+     * @return Collection|null
+     */
     public function intent(string $id): ?Collection
     {
         $arr = $this->get('request.nlu.intents.' . $id, null);
@@ -143,6 +209,11 @@ class Request
         return $arr ? new Collection($arr) : null;
     }
 
+    /**
+     * Это запрос с пингом от Диалогов?
+     *
+     * @return boolean
+     */
     public function isPing(): bool
     {
         return
@@ -151,7 +222,7 @@ class Request
             $this->get('request.type') === 'SimpleUtterance';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return json_encode($this->all(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }

@@ -35,6 +35,9 @@ class Skill
 
     protected Closure|array|string|null $exceptionHandler = null;
 
+    /**
+     * @param array $options Опции для конфигурации
+     */
     public function __construct(array $options = [])
     {
         $this->container = Container::getInstance();
@@ -44,6 +47,9 @@ class Skill
         $this->bootstrap();
     }
 
+    /**
+     * @return void
+     */
     protected function bootstrap(): void
     {
         $request = new Request($this->config()->get('event'));
@@ -66,6 +72,11 @@ class Skill
         $this->globalMiddlewares = $this->config()->get('middlewares', []);
     }
 
+    /**
+     * Может ли навык сам повторить предыдущий ответ.
+     *
+     * @return array|null
+     */
     protected function canAutoRepeat(): ?array
     {
         if (!$this->config->get('auto_repeat')) {
@@ -123,6 +134,13 @@ class Skill
 
     }
 
+    /**
+     * Выполнить перед началом обработки команд.
+     *
+     * @param Closure|array|string $handler
+     * @param integer $priority
+     * @return self
+     */
     public function onBeforeRun(Closure|array|string $handler, int $priority = 500): self
     {
         $this->onBeforeRunHandlers[$priority][] = $handler;
@@ -130,6 +148,13 @@ class Skill
         return $this;
     }
 
+    /**
+     * Выполнить после обработки комманд, когда навык уже ответил.
+     *
+     * @param Closure|array|string $handler
+     * @param integer $priority
+     * @return self
+     */
     public function onAfterRun(Closure|array|string $handler, int $priority = 500): self
     {
         $this->onAfterRunHandlers[$priority][] = $handler;
@@ -137,26 +162,53 @@ class Skill
         return $this;
     }
 
+    /**
+     * Получить экземпляр контейнера.
+     *
+     * @return Container
+     */
     public function container(): Container
     {
         return $this->container;
     }
 
+    /**
+     * Получить экземпляр запроса.
+     *
+     * @return Request
+     */
     public function request(): Request
     {
         return $this->request;
     }
 
+    /**
+     * Получить экземпляр конфига.
+     *
+     * @return Configuration
+     */
     public function config(): Configuration
     {
         return $this->config;
     }
 
+    /**
+     * Получить экземпляр локального хранилища.
+     *
+     * @return Storage
+     */
     public function storage(): Storage
     {
         return $this->storage;
     }
 
+    /**
+     * Создать сцену.
+     *
+     * @param string $name
+     * @param Closure $callback
+     * @return self
+     */
     public function scene(string $name, Closure $callback): self
     {
         $scene = new Scene($name);
@@ -168,6 +220,12 @@ class Skill
         return $this;
     }
 
+    /**
+     * Если во время обработки комманды произошла ошибка.
+     *
+     * @param Closure|array|string|null $callback
+     * @return self
+     */
     public function onException(Closure|array|string|null $callback): self
     {
         $this->exceptionHandler = $callback;
@@ -175,6 +233,11 @@ class Skill
         return $this;
     }
 
+    /**
+     * Запустить обрабокту комманд.
+     *
+     * @return void
+     */
     public function run(): void
     {
         try {
@@ -205,7 +268,10 @@ class Skill
         }
     }
 
-    protected function runExecute()
+    /**
+     * @return void
+     */
+    protected function runExecute(): void
     {
         foreach (array_sort_by_priority($this->onBeforeRunHandlers) as $handler) {
             $this->fire($handler);
@@ -226,6 +292,13 @@ class Skill
         }
     }
 
+    /**
+     * Запустить обработку в рамках Yandex Cloud Functions.
+     *
+     * Использовать вместо метода `run`.
+     *
+     * @return string
+     */
     public function runAsCloudFunction(): string
     {
         ob_start();

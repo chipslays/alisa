@@ -26,6 +26,9 @@ abstract class Middleware
         $this->bootstrap();
     }
 
+    /**
+     * @return void
+     */
     protected function bootstrap(): void
     {
         $this->ctx = new Context;
@@ -35,5 +38,10 @@ abstract class Middleware
         $this->config = $this->container->make(Configuration::class);
     }
 
+    /**
+     * @param Closure $next
+     * @param Request $request
+     * @return void
+     */
     abstract public function __invoke(Closure $next, Request $request);
 }

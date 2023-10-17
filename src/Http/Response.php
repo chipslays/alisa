@@ -25,6 +25,12 @@ class Response
         $this->request = Container::getInstance()->make(Request::class);
     }
 
+    /**
+     * Установить текст ответа.
+     *
+     * @param string $text
+     * @return static
+     */
     public function text(string $text): static
     {
         $this->data['response']['text'] = $text;
@@ -32,6 +38,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Установить TTS для ответа.
+     *
+     * @param string $tts
+     * @return static
+     */
     public function tts(string $tts): static
     {
         $this->data['response']['tts'] = $tts;
@@ -39,6 +51,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Установить кнопки в ответе.
+     *
+     * @param array|string $buttons
+     * @return static
+     */
     public function buttons(array|string $buttons): static
     {
         if (is_string($buttons)) {
@@ -52,6 +70,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Завершить сессию.
+     *
+     * @param boolean $value
+     * @return static
+     */
     public function end(bool $value = true): static
     {
         $this->data['response']['end_session'] = $value;
@@ -59,6 +83,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Установить карточку в ответе.
+     *
+     * @param AbstractCard $card
+     * @return static
+     */
     public function card(AbstractCard $card): static
     {
         $this->data['response']['card'] = $card->toArray();
@@ -66,6 +96,12 @@ class Response
         return $this;
     }
 
+    /**
+     * Управление плеером.
+     *
+     * @param AudioPlayer $player
+     * @return static
+     */
     public function player(AudioPlayer $player): static
     {
         $this->data['response']['should_listen'] = $player->shouldListen();
@@ -74,7 +110,12 @@ class Response
         return $this;
     }
 
-    public function __toString()
+    /**
+     * Вернуть ответ Диалогам в виде JSON.
+     *
+     * @return string
+     */
+    public function __toString(): string
     {
         if (($session = $this->request->session()) && $session->count() > 0) {
             $this->data['session_state'] = $session->all();

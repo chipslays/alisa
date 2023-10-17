@@ -25,11 +25,21 @@ class Context
         $this->container = Container::getInstance();
     }
 
+    /**
+     * Получить экземпляр контейнера.
+     *
+     * @return Container
+     */
     public function container(): Container
     {
         return $this->container;
     }
 
+    /**
+     * Получить экземпляр запроса.
+     *
+     * @return Request
+     */
     public function request(): Request
     {
         if (!isset($this->request)) {
@@ -39,6 +49,11 @@ class Context
         return $this->request;
     }
 
+    /**
+     * Получить экземпляр конфига.
+     *
+     * @return Configuration
+     */
     public function config(): Configuration
     {
         if (!isset($this->config)) {
@@ -48,6 +63,11 @@ class Context
         return $this->config;
     }
 
+    /**
+     * Получить экземпляр локального хранилища.
+     *
+     * @return Storage
+     */
     public function storage(): Storage
     {
         if (!isset($this->storage)) {
@@ -57,6 +77,12 @@ class Context
         return $this->storage;
     }
 
+    /**
+     * Перейти к сцене и обрабатывать последущие запросы в этой сцене.
+     *
+     * @param string $sceneName
+     * @return self
+     */
     public function enter(string $sceneName): self
     {
         $this->request()->session()->set('scene', $sceneName);
@@ -64,6 +90,11 @@ class Context
         return $this;
     }
 
+    /**
+     * Покинуть сцену.
+     *
+     * @return self
+     */
     public function leave(): self
     {
         $this->request()->session()->remove('scene');
@@ -71,6 +102,15 @@ class Context
         return $this;
     }
 
+    /**
+     * Простой ответ.
+     *
+     * @param string $text
+     * @param string|null $tts
+     * @param array $buttons
+     * @param boolean $end
+     * @return void
+     */
     public function reply(string|array $text = '', ?string $tts = null, array|string $buttons = [], bool $end = false): void
     {
         if (is_array($text)) {
@@ -89,6 +129,15 @@ class Context
             ->end($end);
     }
 
+    /**
+     * Ответ с изображениями или управление аудиоплеером.
+     *
+     * @param AbstractCard|AudioPlayer $type
+     * @param string $text
+     * @param string|null $tts
+     * @param boolean $end
+     * @return void
+     */
     public function replyWith(AbstractCard|AudioPlayer $type, string|array $text = '', ?string $tts = null, bool $end = false): void
     {
         if (is_array($text)) {

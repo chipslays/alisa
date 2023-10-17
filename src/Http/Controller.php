@@ -24,6 +24,9 @@ class Controller
         $this->bootstrap();
     }
 
+    /**
+     * @return void
+     */
     protected function bootstrap(): void
     {
         $this->ctx = new Context;

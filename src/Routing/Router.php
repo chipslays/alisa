@@ -24,16 +24,33 @@ trait Router
 
     protected array $groupMiddlewares = [];
 
+    /**
+     * Получить все установленные роуты.
+     *
+     * @return array
+     */
     public function getRoutes(): array
     {
         return array_sort_by_priority($this->routes);
     }
 
+    /**
+     * Получить обработчик по-умолчанию.
+     *
+     * @return Closure|array|string|null
+     */
     public function getFallbackHandler(): Closure|array|string|null
     {
         return $this->fallbackHandler;
     }
 
+    /**
+     * Зарегистрировать мидлвар для дальнейшего использования.
+     *
+     * @param string|array $name
+     * @param Closure|array|string|null|null $handler
+     * @return self
+     */
     public function middleware(string|array $name, Closure|array|string|null $handler = null): self
     {
         if (is_array($name)) {
@@ -45,6 +62,13 @@ trait Router
         return $this;
     }
 
+    /**
+     * Применить мидлвары для обработчиков внутри колбэка.
+     *
+     * @param string|array $middleware
+     * @param Closure $callback
+     * @return self
+     */
     public function group(string|array $middleware, Closure $callback): self
     {
         $this->groupMiddlewares = (array) $middleware;
@@ -56,6 +80,16 @@ trait Router
         return $this;
     }
 
+    /**
+     * Навык запущен.
+     *
+     * Сработает если `session.new === true`,
+     * и значение `request.command` пустое.
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onStart(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->on(function (Request $request): bool {
@@ -70,6 +104,14 @@ trait Router
         return $this;
     }
 
+    /**
+     * Установить обработчик по-умолчанию.
+     *
+     * Например, если пользователь сказал не то, что ожидалось.
+     *
+     * @param Closure|array|string|null $handler
+     * @return self
+     */
     public function onFallback(Closure|array|string|null $handler): self
     {
         $this->fallbackHandler = $handler;
@@ -77,17 +119,41 @@ trait Router
         return $this;
     }
 
-    public function onIntent(string|array $id, Closure|array|string $handler, string|array $middleware = []): self
+    /**
+     * Обработка интентов по их ID.
+     *
+     * Например, мы создали интент в Диалогах с ID `turn.on`,
+     * тогда этот ID нужно указывать здесь.
+     *
+     * Если в запросе приходит несколько интентов,
+     * то вы можете дать `priority` для них.
+     *
+     * По-умолчанию все интенты имеют `priority` -300.
+     *
+     * @param string|array $id
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @param int $priority По-умолчанию `-300`.
+     * @return self
+     */
+    public function onIntent(string|array $id, Closure|array|string $handler, string|array $middleware = [], int $priority = -300): self
     {
         $this->on(function (Request $request) use ($id): bool {
             return (bool) array_intersect((array) $id, array_keys(
                 $request->get('request.nlu.intents', [])
             ));
-        }, $handler, $middleware, -300);
+        }, $handler, $middleware, $priority);
 
         return $this;
     }
 
+    /**
+     * При подтверждении, соглассии и т.п.
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onConfirm(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->onIntent('YANDEX.CONFIRM', $handler, $middleware, -300);
@@ -95,6 +161,13 @@ trait Router
         return $this;
     }
 
+    /**
+     * При отказе, не согласии и т.п.
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onReject(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->onIntent('YANDEX.REJECT', $handler, $middleware, -300);
@@ -102,6 +175,13 @@ trait Router
         return $this;
     }
 
+    /**
+     * Запрос помощи от пользователя.
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onHelp(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->onIntent('YANDEX.HELP', $handler, $middleware, -300);
@@ -109,6 +189,13 @@ trait Router
         return $this;
     }
 
+    /**
+     * Пользователь просит повторить ответ.
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onRepeat(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->onIntent('YANDEX.REPEAT', $handler, $middleware, -300);
@@ -116,6 +203,13 @@ trait Router
         return $this;
     }
 
+    /**
+     * При запросе "что ты умеешь?".
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onWhatCanYouDo(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->onIntent('YANDEX.WHAT_CAN_YOU_DO', $handler, $middleware, -300);
@@ -123,6 +217,15 @@ trait Router
         return $this;
     }
 
+    /**
+     * Универсальный обработчик запроса.
+     *
+     * @param Closure|array $pattern
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @param integer $priority
+     * @return self
+     */
     public function on(Closure|array $pattern, Closure|array|string $handler, string|array $middleware = [], int $priority = 500): self
     {
         $middleware = [...$this->groupMiddlewares, ...(array) $middleware];
@@ -132,6 +235,16 @@ trait Router
         return $this;
     }
 
+    /**
+     * Обработка комманды от пользователя.
+     *
+     * Только если `request.type` имеет значение `SimpleUtterance`.
+     *
+     * @param string|array $command
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onCommand(string|array $command, Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->on(function (Request $request) use ($command): bool|array {
@@ -150,6 +263,15 @@ trait Router
         return $this;
     }
 
+    /**
+     * Пользователь нажал на кнопку,
+     * сработает только если в ранее переданной кнопке был указан параметр `action`.
+     *
+     * @param string|array $action
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onAction(string|array $action, Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->on(['request.payload.action' => $action], $handler, $middleware, -200);
@@ -157,6 +279,14 @@ trait Router
         return $this;
     }
 
+    /**
+     * Признак реплики, которая содержит криминальный подтекст
+     * (самоубийство, разжигание ненависти, угрозы).
+     *
+     * @param Closure|array|string $handler
+     * @param array $middleware
+     * @return self
+     */
     public function onDangerous(Closure|array|string $handler, string|array $middleware = []): self
     {
         $this->on(['request.markup.dangerous_context' => true], $handler, $middleware, -400);
@@ -164,12 +294,18 @@ trait Router
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function dispatch(): void
     {
         $this->matchRoute();
     }
 
-    public function matchRoute(): void
+    /**
+     * @return void
+     */
+    protected function matchRoute(): void
     {
         foreach (array_sort_by_priority($this->routes) as $index => $route) {
             foreach ((array) $route['pattern'] as $pattern => $needles) {
@@ -213,7 +349,12 @@ trait Router
         }
     }
 
-    public function match($needle, $haystack): ?array
+    /**
+     * @param string $needle
+     * @param string $haystack
+     * @return array|null
+     */
+    public function match(string $needle, string $haystack): ?array
     {
         /**
          * $router->on(['pattern' => 'needle'], ...)
@@ -243,6 +384,12 @@ trait Router
         return null;
     }
 
+    /**
+     * @param integer $index
+     * @param array $route
+     * @param array $parameters
+     * @return boolean
+     */
     protected function pipeline(int $index, array $route, array $parameters = []): bool
     {
         // добавляем в конец обработчик
@@ -280,6 +427,11 @@ trait Router
         return $this->matchedRoute !== null;
     }
 
+    /**
+     * @param Closure|array|string|callable $route
+     * @param array $parameters
+     * @return void
+     */
     protected function fire(Closure|array|string|callable $route, array $parameters = []): void
     {
         // из роута

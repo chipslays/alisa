@@ -49,6 +49,14 @@ class Image
         curl_setopt($this->httpClient, CURLOPT_RETURNTRANSFER, true);
     }
 
+    /**
+     * Проверить занятое место.
+     *
+     * Для каждого аккаунта Яндекса на Диалоги
+     * можно загрузить не больше 100 МБ картинок.
+     *
+     * @return array
+     */
     public function status(): array
     {
         $endpoint = $this->host . '/api/v1/status';
@@ -63,6 +71,11 @@ class Image
         return $this->handle($response);
     }
 
+    /**
+     * Получить список загруженных изображений.
+     *
+     * @return array
+     */
     public function all(): array
     {
         $endpoint = $this->host . '/api/v1/skills/' . $this->skillId . '/images';
@@ -77,6 +90,12 @@ class Image
         return $this->handle($response);
     }
 
+    /**
+     * Удалить изображение из Диалогов.
+     *
+     * @param string $id
+     * @return array
+     */
     public function delete(string $id): array
     {
         $endpoint = $this->host . '/api/v1/skills/' . $this->skillId . '/images/' . $id;
@@ -92,6 +111,18 @@ class Image
         return $this->handle($response);
     }
 
+    /**
+     * Загрузить локльное изображение или по ссылке.
+     *
+     * Если изображение уже было загружено и закешировано,
+     * то вернет результат из кеша.
+     *
+     * Чтобы исключить кеш, укажите параметр `cache` как `false`.
+     *
+     * @param string $image
+     * @param boolean $cache
+     * @return string|null
+     */
     public function upload(string $image, bool $cache = true): ?string
     {
         // Пробуем достать картинку из кеша
@@ -119,6 +150,20 @@ class Image
         return $imageId;
     }
 
+    /**
+     * Отправить картинку только один раз.
+     *
+     * После отправки изображение будет сразу удалено из Диалогов и кеша.
+     *
+     * Если изображение уже было загружено и закешировано,
+     * то возьем изображение из кеша.
+     *
+     * Чтобы исключить кеш, укажите параметр `cache` как `false`.
+     *
+     * @param string $image
+     * @param boolean $cache
+     * @return string|null
+     */
     public function once(string $image, bool $cache = true): ?string
     {
         $id = $this->upload($image, $cache);
@@ -141,6 +186,12 @@ class Image
         return $id;
     }
 
+    /**
+     * Загрузить изображение по ссылке.
+     *
+     * @param string $url
+     * @return array
+     */
     public function uploadByUrl(string $url): array
     {
         $endpoint = $this->host . '/api/v1/skills/' . $this->skillId . '/images';
@@ -160,6 +211,12 @@ class Image
         return $this->handle($response);
     }
 
+    /**
+     * Загрузить локальное изображение.
+     *
+     * @param string $file
+     * @return array
+     */
     public function uploadByFile(string $file): array
     {
         $endpoint = $this->host . '/api/v1/skills/' . $this->skillId . '/images';
@@ -179,11 +236,23 @@ class Image
         return $this->handle($response);
     }
 
+    /**
+     * Получить идентификатор изображения из кеша.
+     *
+     * @param string $image Ссылка или путь до локального файла.
+     * @return string|null
+     */
     public function retrieve(string $image): ?string
     {
         return @file_get_contents($this->path . '/' . md5($image));
     }
 
+    /**
+     * Удалить изображение из кеша.
+     *
+     * @param string $image Ссылка или путь до локального файла.
+     * @return self
+     */
     public function forget(string $image): self
     {
         unlink($this->path . '/' . md5($image));
@@ -191,6 +260,11 @@ class Image
         return $this;
     }
 
+    /**
+     * @param string $response
+     * @param string|null $image
+     * @return array
+     */
     protected function handle(string $response, ?string $image = null): array
     {
         return json_decode($response, true);
