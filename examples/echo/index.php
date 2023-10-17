@@ -17,8 +17,9 @@ $skill->onFallback(function (Context $ctx) {
     // Получаем текст команды
     $text = $ctx->request()->get('request.command');
 
-    // Применяем эффект "хомяка" для голоса
+    // Применяем эффект "хомяка" для голоса и отправляем ответ
     $ctx->reply('{effect:hamster}' . $text);
 });
 
+// Запускаем обработку запроса
 $skill->run();
