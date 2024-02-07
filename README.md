@@ -10,7 +10,7 @@ composer require alisa/alisa:@beta
 
 ## Примеры
 
-Просто echo скилл в виде хомяка-повторюшки:
+Простой echo скилл в виде хомяка-повторюшки:
 
 ```php
 $skill = new Alisa\Skill;
@@ -19,7 +19,7 @@ $skill->onStart(function (Alisa\Context $ctx) {
     $ctx->reply('{effect:hamster} Привет, я хомяк-повторюшка!');
 });
 
-$skill->onFallback(function (Context $ctx) {
+$skill->onFallback(function (Alisa\Context $ctx) {
     $ctx->reply('{effect:hamster}' . $ctx->request()->get('request.command'));
 });
 
