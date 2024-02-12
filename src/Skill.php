@@ -97,6 +97,8 @@ class Skill
         [$sceneName, $index] = explode(':', array_shift($parameters));
 
         if ($index == '-1') {
+            $handler = null;
+
             if ($sceneName !== '') {
                 if ($scene = Stage::get($sceneName)) {
                     $handler = $scene->getFallbackHandler();
@@ -114,6 +116,8 @@ class Skill
                 'parameters' => array_filter(explode('&&', implode('#', $parameters)), fn ($item) => $item !== ''),
             ];
         } else {
+            $route = null;
+
             if ($sceneName !== '') {
                 if ($scene = Stage::get($sceneName)) {
                     $route = $scene->getRoutes()[$index];
